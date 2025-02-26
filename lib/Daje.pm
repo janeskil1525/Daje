@@ -33,7 +33,8 @@ use Mojo::Base 'Mojolicious', -signatures;
 # janeskil1525 E<lt>janeskil1525@gmail.comE<gt>
 #
 
-
+use Daje::Tools::JWT;
+use Mojo::Pg;
 
 our $VERSION = "0.01";
 
@@ -41,8 +42,12 @@ our $VERSION = "0.01";
 sub startup ($self) {
 
   # Load configuration from config file
-  my $config = $self->plugin('NotYAMLConfig');
+  my $config = $self->plugin('Config');
+  $self->log->path($self->config('log'));
+  $self->log->level($self->config('loglevel'));
 
+  $self->helper(pg => sub {state $pg = Mojo::Pg->new->dsn(shift->config('pg'))});
+  $self->helper(jwt => sub {state $jwt = Daje::Tools::JWT->new()});
   # Configure the application
   $self->secrets($config->{secrets});
 
@@ -55,6 +60,7 @@ sub startup ($self) {
 
   # Normal route to controller
   $r->get('/')->to('Example#welcome');
+  $r->post('/workflow')->to('Workflow#execute');
 }
 
 1;
