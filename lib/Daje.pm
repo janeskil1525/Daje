@@ -36,7 +36,7 @@ use Mojo::Base 'Mojolicious', -signatures;
 use Daje::Tools::JWT;
 use Mojo::Pg;
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 # This method will run once at server start
 sub startup ($self) {
@@ -59,8 +59,7 @@ sub startup ($self) {
   my $r = $self->routes;
 
   # Normal route to controller
-  $r->get('/')->to('Example#welcome');
-  $r->post('/workflow')->to('Workflow#execute');
+  $r->post('/signup')->to('Signup#signup');
 }
 
 1;
