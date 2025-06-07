@@ -47,8 +47,10 @@ sub startup ($self) {
   $self->log->path($self->config('log'));
   $self->log->level($self->config('loglevel'));
 
-  Daje::Helper::AppLoader->new()->process($self);
   $self->helper(pg => sub {state $pg = Mojo::Pg->new->dsn(shift->config('pg'))});
+
+  Daje::Helper::AppLoader->new()->process($self);
+
   $self->helper(jwt => sub {state $jwt = Daje::Tools::JWT->new()});
   $self->plugin('Minion'  => { Pg => $self->pg });
   # Configure the application
