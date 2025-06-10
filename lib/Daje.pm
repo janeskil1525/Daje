@@ -35,7 +35,6 @@ use Mojo::Base 'Mojolicious', -signatures;
 
 use Daje::Tools::JWT;
 use Mojo::Pg;
-use Daje::Helper::AppLoader;
 
 our $VERSION = "0.04";
 
@@ -49,25 +48,23 @@ sub startup ($self) {
 
   $self->helper(pg => sub {state $pg = Mojo::Pg->new->dsn(shift->config('pg'))});
 
-  Daje::Helper::AppLoader->new()->process($self);
-
-  $self->helper(jwt => sub {state $jwt = Daje::Tools::JWT->new()});
-  $self->plugin('Minion'  => { Pg => $self->pg });
+  #$self->helper(jwt => sub {state $jwt = Daje::Tools::JWT->new()});
+  $self->plugin('Daje::Plugin::Apploader');
   # Configure the application
   $self->secrets($config->{secrets});
 
-  push @{$self->plugins->namespaces}, 'Daje::Plugin';
-  push @{$self->routes->namespaces}, 'Daje::Controller';
+  #push @{$self->plugins->namespaces}, 'Daje::Plugin';
+  #push @{$self->routes->namespaces}, 'Daje::Controller';
 
-  $self->plugin('Workflow');
-  $self->plugin('Login');
+  #$self->plugin('Workflow');
+  #$self->plugin('Login');
 
   # Router
-  my $r = $self->routes;
+  #my $r = $self->routes;
 
   # Normal route to controller
 
-  $r->put('/api/signup/')->to('Signup#signup');
+  #$r->put('/api/signup/')->to('Signup#signup');
 }
 
 1;
