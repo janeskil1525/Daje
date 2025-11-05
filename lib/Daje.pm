@@ -32,39 +32,39 @@ use Mojo::Base 'Mojolicious', -signatures;
 #
 # janeskil1525 E<lt>janeskil1525@gmail.comE<gt>
 #
-
-use Daje::Tools::JWT;
+use Cwd;
+#use Daje::Tools::JWT;
 use Mojo::Pg;
 
-our $VERSION = "0.04";
+our $VERSION = "0.06";
+# $ENV{DAJE_HOME} = '/home/jan/Project/Daje/'
+#     unless $ENV{DAJE_HOME};
+
+has home => sub {
+  Mojo::Home->new(cwd);
+};
 
 # This method will run once at server start
 sub startup ($self) {
 
   # Load configuration from config file
-  my $config = $self->plugin('Config');
-  $self->log->path($self->config('log'));
+  my $logfile = $self->home() . "/../config/config.conf";
+  say $logfile;
+  say cwd;
+
+  my $config = $self->plugin('Config',{file => $logfile});
+  $self->log->path($self->home() . $self->config('log'));
   $self->log->level($self->config('loglevel'));
 
+  $self->log->debug("Test");
   $self->helper(pg => sub {state $pg = Mojo::Pg->new->dsn(shift->config('pg'))});
+  say $self->pg->db->query('select version() as version')->hash->{version};
+  $self->log->debug($self->pg->db->query('select version() as version')->hash->{version});
 
-  #$self->helper(jwt => sub {state $jwt = Daje::Tools::JWT->new()});
   $self->plugin('Daje::Plugin::Apploader');
   # Configure the application
   $self->secrets($config->{secrets});
 
-  #push @{$self->plugins->namespaces}, 'Daje::Plugin';
-  #push @{$self->routes->namespaces}, 'Daje::Controller';
-
-  #$self->plugin('Workflow');
-  #$self->plugin('Login');
-
-  # Router
-  #my $r = $self->routes;
-
-  # Normal route to controller
-
-  #$r->put('/api/signup/')->to('Signup#signup');
 }
 
 1;
