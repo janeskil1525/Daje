@@ -36,7 +36,7 @@ use Cwd;
 #use Daje::Tools::JWT;
 use Mojo::Pg;
 
-our $VERSION = "0.06";
+our $VERSION = "0.07";
 # $ENV{DAJE_HOME} = '/home/jan/Project/Daje/'
 #     unless $ENV{DAJE_HOME};
 
