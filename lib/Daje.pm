@@ -36,7 +36,7 @@ use Cwd;
 #use Daje::Tools::JWT;
 use Mojo::Pg;
 
-our $VERSION = "0.07";
+our $VERSION = "0.08";
 # $ENV{DAJE_HOME} = '/home/jan/Project/Daje/'
 #     unless $ENV{DAJE_HOME};
 
@@ -44,13 +44,13 @@ has home => sub {
   Mojo::Home->new(cwd);
 };
 
+has 'auth';
+
 # This method will run once at server start
 sub startup ($self) {
 
   # Load configuration from config file
   my $logfile = $self->home() . "/../config/config.conf";
-  say $logfile;
-  say cwd;
 
   my $config = $self->plugin('Config',{file => $logfile});
   $self->log->path($self->home() . $self->config('log'));
@@ -61,8 +61,22 @@ sub startup ($self) {
   say $self->pg->db->query('select version() as version')->hash->{version};
   $self->log->debug($self->pg->db->query('select version() as version')->hash->{version});
 
+  my $r = $self->routes;
+  my $auth = $r->under($self->config->{project} . '/api/' => sub {
+    my $c = shift;
+    #say "authentichate " . $c->req->headers->header('X-Token-Check');
+    # Authenticated
+    return 1 if $c->login->authenticate($c->req->headers->header('X-Token-Check'));
+    # Not authenticated
+    $c->render(json => '{"error":"unknown error"}');
+    say "Auth failed";
+    return undef;
+  });
+  $self->auth($auth);
   $self->plugin('Daje::Plugin::Apploader');
   # Configure the application
+
+
   $self->secrets($config->{secrets});
 
 }
