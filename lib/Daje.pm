@@ -33,7 +33,6 @@ use Mojo::Base 'Mojolicious', -signatures;
 # janeskil1525 E<lt>janeskil1525@gmail.comE<gt>
 #
 use Cwd;
-#use Daje::Tools::JWT;
 use Mojo::Pg;
 
 our $VERSION = "0.08";
@@ -45,6 +44,7 @@ has home => sub {
 };
 
 has 'auth';
+has 'secrets';
 
 # This method will run once at server start
 sub startup ($self) {
@@ -61,6 +61,8 @@ sub startup ($self) {
   say $self->pg->db->query('select version() as version')->hash->{version};
   $self->log->debug($self->pg->db->query('select version() as version')->hash->{version});
 
+
+
   my $r = $self->routes;
   say "Daje " . $self->config->{project};
   my $auth = $r->under($self->config->{project} . '/api/' => sub ($c) {
@@ -76,7 +78,7 @@ sub startup ($self) {
   $self->auth($auth);
   $self->plugin('Daje::Plugin::Apploader');
   # Configure the application
-
+  $self->app->jwt->secret(@{$config->{secrets}}[0]);
 
   $self->secrets($config->{secrets});
 
