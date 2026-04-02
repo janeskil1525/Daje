@@ -35,7 +35,7 @@ use Mojo::Base 'Mojolicious', -signatures;
 use Cwd;
 use Mojo::Pg;
 
-our $VERSION = "0.20";
+our $VERSION = "0.32";
 # $ENV{DAJE_HOME} = '/home/jan/Project/Daje/'
 #     unless $ENV{DAJE_HOME};
 
@@ -60,7 +60,7 @@ sub startup ($self) {
   $self->helper(pg => sub {state $pg = Mojo::Pg->new->dsn(shift->config('pg'))});
   say $self->pg->db->query('select version() as version')->hash->{version};
   $self->log->debug($self->pg->db->query('select version() as version')->hash->{version});
-  $self->plugin('Minion'  => { Pg => $self->pg });
+  $self->plugin(Minion  => { Pg => $self->pg });
 
 
   my $r = $self->routes;
